@@ -1,33 +1,41 @@
+ 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world
+  name: hello-deployment
+  labels:
+    role: app
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: hello-world
-  template:
-    metadata:
-      labels:
-        app: hello-world
-    spec:
-      containers:
-      - image: okteto/hello-world:golang
-        name: hello-world
+  replicas: 2
+  selector:
+    matchLabels:
+      role: app
+  template:
+    metadata:
+      labels:
+        role: app
+    spec:
+      containers:
+      - name: app
+        image: ""
+        resources:
+          requests:
+            cpu: 10m
 
 ---
 
+ 
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-world
-  annotations:
-    dev.okteto.com/auto-ingress: "true"
+  name: hello-svc
 spec:
-  type: ClusterIP  
-  ports:
-  - name: "hello-world"
-    port: 8080
-  selector:
-    app: hello-world
+  selector:
+    role: app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 32000
+  type: NodePort
+
